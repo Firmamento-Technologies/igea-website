@@ -521,6 +521,69 @@ $('ag-go').addEventListener('click', async () => {
 const hhmmToMin = (t) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
 const minToHhmm = (m) => String(Math.floor(m / 60)).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
 
+/* ═══ PRIVACY — cancellazione art. 17 GDPR ═══
+   Le conversazioni Igea sono Communication con identifier
+   urn:firmamento:segretaria:sessione = "sms:{studio|single}:{sha256(telefono)[:16]}"
+   (hash calcolato come in services/segretaria/main.py). Le Task di handoff
+   aperte portano lo stesso identifier. Per policy: si cancellano SOLO queste;
+   Appointment/MedicationRequest/AuditEvent restano (obbligo conservazione). */
+const SESSION_SYS = 'urn:firmamento:segretaria:sessione';
+let pvFound = { comms: [], tasks: [] };
+
+async function sha256hex16(text) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf)).map((b) => b.toString(16).padStart(2, '0')).join('').slice(0, 16);
+}
+
+async function pvSearch() {
+  const tel = $('pv-tel').value.trim().replace(/[\s-]/g, '');
+  if (!tel) { $('pv-msg').textContent = 'Inserisci il numero in formato internazionale (es. +393331234567).'; return null; }
+  const digest = await sha256hex16(tel);
+  const sids = ['sms:single:' + digest];
+  if (studioOrg?.id) sids.push('sms:' + studioOrg.id + ':' + digest);
+  const comms = [], tasks = [];
+  for (const sid of sids) {
+    const idq = encodeURIComponent(SESSION_SYS + '|' + sid);
+    comms.push(...resources(await fhir('Communication?identifier=' + idq + '&_count=1000')));
+    tasks.push(...resources(await fhir('Task?identifier=' + idq + '&status=requested&_count=1000')));
+  }
+  return { comms, tasks };
+}
+
+$('pv-find').addEventListener('click', async () => {
+  const msg = $('pv-msg');
+  msg.textContent = 'ricerca…';
+  $('pv-delete').style.display = 'none';
+  try {
+    pvFound = await pvSearch() || { comms: [], tasks: [] };
+    const n = pvFound.comms.length + pvFound.tasks.length;
+    if (!n) {
+      msg.textContent = 'Nessun dato Igea per questo numero (0 conversazioni, 0 richieste aperte).';
+    } else {
+      msg.textContent = `Trovati: ${pvFound.comms.length} conversazioni + ${pvFound.tasks.length} richieste di richiamo aperte. La cancellazione è definitiva.`;
+      $('pv-delete').style.display = '';
+    }
+  } catch (e) { msg.textContent = 'Errore: ' + e.message; }
+});
+
+$('pv-delete').addEventListener('click', async () => {
+  const msg = $('pv-msg');
+  if (!confirm('Confermi la cancellazione DEFINITIVA delle conversazioni Igea di questo numero e delle richieste di richiamo aperte? (Appuntamenti e ricette restano, per obbligo di legge)')) return;
+  msg.textContent = 'cancellazione…';
+  $('pv-delete').style.display = 'none';
+  let ok = 0, err = 0;
+  try {
+    for (const r of [...pvFound.comms, ...pvFound.tasks]) {
+      try {
+        await fhir(r.resourceType + '/' + r.id, { method: 'DELETE' });
+        ok++;
+      } catch { err++; }
+    }
+    msg.textContent = `✓ Cancellati ${ok} record${err ? ` (${err} errori — riprova)` : ''}. Registra l'esito sul registro privacy (data, numero anonimizzato, ${ok} record).`;
+    pvFound = { comms: [], tasks: [] };
+  } catch (e) { msg.textContent = 'Errore: ' + e.message; }
+});
+
 /* ═══ Google Calendar (.ics) ═══ */
 $('ics-btn').addEventListener('click', async () => {
   try {

@@ -118,6 +118,7 @@
           <div class="setup-step" id="setup-2"><b>2</b> Assistente Igea</div>
           <div class="setup-step" id="setup-3"><b>3</b> Medici e agenda</div>
           <div class="setup-step" id="setup-4"><b>4</b> Numero e canali</div>
+          <div class="setup-step" id="setup-5"><b>5</b> Privacy</div>
         </div>
 
         <section class="card" style="margin-bottom:16px">
@@ -203,6 +204,19 @@
                 <button class="btn btn-ghost btn-sm" id="ics-btn">Scarica .ics</button>
               </div>
             </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head"><h2>5 · Privacy — cancellazione dati paziente</h2><p>Diritto alla cancellazione (art. 17 GDPR). Elimina le conversazioni Igea di un numero di telefono e le richieste di richiamo aperte. Appuntamenti e ricette restano (obbligo di conservazione).</p></div>
+          <div class="card-body form-grid">
+            <div><label>Numero di telefono del paziente (formato internazionale)</label><input id="pv-tel" placeholder="+393331234567" /></div>
+            <div class="span2">
+              <button class="btn btn-ghost btn-sm" id="pv-find">Cerca dati</button>
+              <button class="btn btn-primary btn-sm" id="pv-delete" style="display:none">Cancella definitivamente</button>
+              <span id="pv-msg" class="muted"></span>
+            </div>
+            <div class="span2 muted">Registra la richiesta sul registro privacy dello studio (data, numero anonimizzato, esito): va evasa entro 30 giorni. I contatti in memoria di conversazione scadono da soli dopo 30 minuti.</div>
           </div>
         </section>
       </section>

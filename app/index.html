@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Igea — Console dello studio</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230b52e0'/%3E%3Cpath d='M8 16h3l2-6 3 12 2.5-9 1.5 3H24' stroke='white' stroke-width='2.2' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ═══ LOGIN ═══ -->
+  <div id="view-login">
+    <div class="login-card">
+      <svg viewBox="0 0 32 32" width="40" height="40"><rect width="32" height="32" rx="9" fill="#0b52e0"/><path d="M8 16h3l2-6 3 12 2.5-9 1.5 3H24" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      <h1>Igea — console dello studio</h1>
+      <p>La tua segretaria AI: richiami, agenda, pazienti e conversazioni.</p>
+      <form id="login-form">
+        <details class="server-details">
+          <summary>Server (avanzato)</summary>
+          <input id="api" value="http://localhost:8103" autocomplete="off" />
+        </details>
+        <label for="email">Email</label>
+        <input id="email" type="email" value="medico@studio.test" autocomplete="username" />
+        <label for="password">Password</label>
+        <input id="password" type="password" autocomplete="current-password" />
+        <button class="btn btn-primary" type="submit" id="login-btn">Entra</button>
+        <div class="err" id="login-err"></div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ═══ APP ═══ -->
+  <div id="view-app" class="hidden">
+    <aside class="sidebar">
+      <div class="brand">
+        <svg viewBox="0 0 32 32" width="28" height="28"><rect width="32" height="32" rx="8" fill="#0b52e0"/><path d="M8 16h3l2-6 3 12 2.5-9 1.5 3H24" stroke="#fff" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Igea</span>
+      </div>
+      <nav class="side-nav">
+        <a href="#" class="active" data-view="oggi">🏠 Oggi</a>
+        <a href="#" data-view="calendario">📅 Calendario</a>
+        <a href="#" data-view="pazienti">👥 Pazienti</a>
+        <a href="#" data-view="impostazioni">⚙️ Impostazioni</a>
+      </nav>
+      <div class="side-foot">
+        <div id="who" class="who"></div>
+        <a href="#" id="logout" class="link">Esci</a>
+      </div>
+    </aside>
+
+    <main class="main">
+      <!-- ── OGGI ── -->
+      <section id="page-oggi" class="page">
+        <div class="kpis">
+          <div class="kpi"><b id="k-msg7">—</b><span>Messaggi (7 giorni)</span></div>
+          <div class="kpi"><b id="k-appt30">—</b><span>Prenotazioni (30 giorni)</span></div>
+          <div class="kpi"><b id="k-hand">—</b><span>Da ricontattare ora</span></div>
+          <div class="kpi"><b id="k-118">—</b><span>Trigger 118 (30 giorni)</span></div>
+        </div>
+        <div class="grid2">
+          <section class="card">
+            <div class="card-head"><h2>📞 Da ricontattare</h2><p>Pazienti che chiedono un operatore umano.</p></div>
+            <div class="card-body" id="handoff-list"><p class="empty">Caricamento…</p></div>
+          </section>
+          <section class="card">
+            <div class="card-head"><h2>📅 Prenotazioni di oggi</h2><p>Appuntamenti presi da Igea per oggi.</p></div>
+            <div class="card-body" id="today-list"><p class="empty">Caricamento…</p></div>
+          </section>
+        </div>
+        <section class="card">
+          <div class="card-head"><h2>💬 Conversazioni</h2><p>Gli ultimi messaggi tra i pazienti e Igea.</p></div>
+          <div class="card-body" id="conv-list" style="padding-top:4px"><p class="empty">Caricamento…</p></div>
+        </section>
+      </section>
+
+      <!-- ── CALENDARIO ── -->
+      <section id="page-calendario" class="page hidden">
+        <div class="cal-bar">
+          <button class="btn btn-ghost btn-sm" id="cal-prev">←</button>
+          <b id="cal-label"></b>
+          <button class="btn btn-ghost btn-sm" id="cal-today">Oggi</button>
+          <button class="btn btn-ghost btn-sm" id="cal-next">→</button>
+        </div>
+        <div class="cal-tg" id="cal-tg"></div>
+        <p class="muted" style="margin-top:8px">Clic su un appuntamento → lo apri in Google Calendar.</p>
+      </section>
+
+      <!-- ── PAZIENTI ── -->
+      <section id="page-pazienti" class="page hidden">
+        <section class="card" style="margin-bottom:14px">
+          <div class="card-head"><h2>＋ Nuovo paziente</h2></div>
+          <div class="card-body form-grid">
+            <div><label>Nome</label><input id="pat-nome" placeholder="Mario" /></div>
+            <div><label>Cognome</label><input id="pat-cognome" placeholder="Rossi" /></div>
+            <div><label>Telefono</label><input id="pat-tel" placeholder="+39 333 1234567" /></div>
+            <div><label>Data di nascita</label><input id="pat-nascita" type="date" /></div>
+            <div class="span2"><button class="btn btn-primary btn-sm" id="pat-add">Aggiungi paziente</button> <span id="pat-msg" class="muted"></span></div>
+          </div>
+        </section>
+        <section class="card">
+          <div class="card-head"><h2>👥 Pazienti dello studio</h2><p>Anagrafica gestita da te. I contatti delle prenotazioni Igea si aggiungono qui.</p></div>
+          <div class="card-body">
+            <table class="tbl" id="pat-table">
+              <thead><tr><th>Cognome e nome</th><th>Telefono</th><th>Nato/a</th><th></th></tr></thead>
+              <tbody><tr><td colspan="4" class="empty">Caricamento…</td></tr></tbody>
+            </table>
+          </div>
+        </section>
+      </section>
+
+      <!-- ── IMPOSTAZIONI ── -->
+      <section id="page-impostazioni" class="page hidden">
+        <div class="setup-steps">
+          <div class="setup-step" id="setup-1"><b>1</b> Studio</div>
+          <div class="setup-step" id="setup-2"><b>2</b> Assistente Igea</div>
+          <div class="setup-step" id="setup-3"><b>3</b> Medici e agenda</div>
+          <div class="setup-step" id="setup-4"><b>4</b> Numero e canali</div>
+        </div>
+
+        <section class="card" style="margin-bottom:16px">
+          <div class="card-head"><h2>1 · Dati dello studio</h2><p>Igea li usa per presentarsi ai pazienti.</p></div>
+          <div class="card-body form-grid">
+            <div><label>Nome studio</label><input id="st-nome" placeholder="Studio Medico Rossi" /></div>
+            <div><label>Telefono studio</label><input id="st-tel" placeholder="+39 010 1234567" /></div>
+            <div class="span2"><label>Indirizzo</label><input id="st-ind" placeholder="Via Roma 1, 16100 Genova" /></div>
+            <div class="span2"><label>Orari di apertura (testo per i pazienti)</label><input id="st-orari" placeholder="Lun-Ven 9-13 / 15-19" /></div>
+            <div class="span2"><button class="btn btn-primary btn-sm" id="st-save">Salva dati studio</button> <span id="st-msg" class="muted"></span></div>
+          </div>
+        </section>
+
+        <section class="card" style="margin-bottom:16px">
+          <div class="card-head"><h2>2 · Assistente Igea</h2><p>Cosa Igea sa e come risponde ai pazienti.</p></div>
+          <div class="card-body form-grid">
+            <div><label>Numero urgenze / passaggio a operatore</label><input id="sg-urgenze" placeholder="+39 333 1234567" /></div>
+            <div><label>Farmacia di turno</label><input id="sg-farmacia" placeholder="Farmacia Centrale, Via Roma 1" /></div>
+            <div class="span2"><label>Medico di turno</label><input id="sg-medico" placeholder="Dr. Rossi, 333 1234567" /></div>
+            <div class="span2"><label>Informazioni per i pazienti (FAQ, preparazioni, indicazioni pratiche)</label>
+              <textarea id="sg-info" rows="4" placeholder="es. Ecografia addome: digiuno 6 ore. Parcheggio interno gratuito. Pagamento anche con bancomat."></textarea>
+              <div class="muted">Igea usa SOLO questo testo approvato da te per rispondere; i consigli medici restano sempre vietati.</div>
+            </div>
+            <div class="span2"><button class="btn btn-primary btn-sm" id="sg-save">Salva configurazione Igea</button> <span id="sg-msg" class="muted"></span></div>
+          </div>
+        </section>
+
+        <section class="card" style="margin-bottom:16px">
+          <div class="card-head"><h2>3 · Medici e agenda</h2><p>Aggiungi i medici e genera gli slot prenotabili da Igea.</p></div>
+          <div class="card-body">
+            <table class="tbl" id="doc-table">
+              <thead><tr><th>Medico</th><th>Agenda</th><th>Slot liberi (14gg)</th></tr></thead>
+              <tbody><tr><td colspan="3" class="empty">Caricamento…</td></tr></tbody>
+            </table>
+            <hr class="sep" />
+            <div class="form-grid">
+              <div><label>Nome</label><input id="doc-nome" placeholder="Mario" /></div>
+              <div><label>Cognome</label><input id="doc-cognome" placeholder="Rossi" /></div>
+              <div class="span2"><button class="btn btn-primary btn-sm" id="doc-add">+ Aggiungi medico</button> <span id="doc-msg" class="muted"></span></div>
+            </div>
+            <hr class="sep" />
+            <p class="muted" style="margin-bottom:8px"><b>Genera agenda</b> per il medico selezionato (salta gli slot già esistenti):</p>
+            <div class="form-grid">
+              <div class="span2"><label>Medico</label><select id="ag-medico"></select></div>
+              <div class="span2"><label>Giorni</label>
+                <div class="days" id="ag-days">
+                  <label><input type="checkbox" value="1" checked /> Lun</label>
+                  <label><input type="checkbox" value="2" checked /> Mar</label>
+                  <label><input type="checkbox" value="3" checked /> Mer</label>
+                  <label><input type="checkbox" value="4" checked /> Gio</label>
+                  <label><input type="checkbox" value="5" checked /> Ven</label>
+                  <label><input type="checkbox" value="6" /> Sab</label>
+                  <label><input type="checkbox" value="0" /> Dom</label>
+                </div>
+              </div>
+              <div><label>Dalle</label><input id="ag-from" type="time" value="09:00" /></div>
+              <div><label>Alle</label><input id="ag-to" type="time" value="13:00" /></div>
+              <div><label>Durata visita (min)</label><input id="ag-dur" type="number" value="30" min="5" step="5" /></div>
+              <div><label>Settimane da generare</label><input id="ag-weeks" type="number" value="2" min="1" max="8" /></div>
+              <div class="span2"><button class="btn btn-primary btn-sm" id="ag-go">Genera slot</button> <span id="ag-msg" class="muted"></span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="card">
+          <div class="card-head"><h2>4 · Numero Igea e canali</h2><p>Come i pazienti ti raggiungono.</p></div>
+          <div class="card-body">
+            <div class="row">
+              <div class="row-top">
+                <div>
+                  <b>📱 Numero SMS Igea</b>
+                  <div class="muted" id="num-status">In attivazione — i messaggi di prova girano in locale. Con l'attivazione (operatore telefonico) i pazienti scriveranno a questo numero.</div>
+                </div>
+                <span class="badge badge-amber">in attivazione</span>
+              </div>
+            </div>
+            <div class="row">
+              <div class="row-top">
+                <div>
+                  <b>📆 Google Calendar</b>
+                  <div class="muted">Scarica il file degli appuntamenti e importalo in Google Calendar (Impostazioni → Importa). La sincronizzazione automatica arriva con la prossima versione.</div>
+                </div>
+                <button class="btn btn-ghost btn-sm" id="ics-btn">Scarica .ics</button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>

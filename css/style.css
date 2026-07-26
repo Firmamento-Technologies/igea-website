@@ -172,7 +172,7 @@ body.cursor-hover .cursor-ring { width: 52px; height: 52px; border-color: var(--
 /* ═══════════ HERO ═══════════ */
 .hero {
   min-height: 100vh;
-  padding: clamp(7rem, 14vh, 9rem) clamp(1.25rem, 4vw, 3rem) 3rem;
+  padding: clamp(5.5rem, 10vh, 7rem) clamp(1.25rem, 4vw, 3rem) 2.5rem;
   display: flex; flex-direction: column; justify-content: center;
   position: relative;
   /* carta millimetrata clinica + alone freddo */
@@ -197,23 +197,23 @@ body.cursor-hover .cursor-ring { width: 52px; height: 52px; border-color: var(--
 .hero-title {
   font-family: var(--font-display);
   font-weight: 600;
-  font-size: clamp(2.9rem, 6.8vw, 5.8rem);
+  font-size: clamp(2.4rem, 5.4vw, 4.5rem);
   line-height: 1.0;
   letter-spacing: -0.03em;
-  margin: 0.4rem 0 1.6rem;
+  margin: 0.3rem 0 1rem;
 }
 .hero-title .line { display: block; overflow: hidden; }
 .hero-title .line > span, .hero-title .line { will-change: transform; }
 .hero-title em { font-style: italic; color: var(--teal); font-weight: 500; }
 
 .hero-sub {
-  font-size: 1.13rem;
+  font-size: 1.08rem;
   color: var(--ink-soft);
   max-width: 34rem;
-  margin-bottom: 2rem;
+  margin-bottom: 1.4rem;
 }
 .hero-sub strong { color: var(--ink); }
-.hero-cta { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-bottom: 2.2rem; }
+.hero-cta { display: flex; flex-wrap: wrap; gap: 0.8rem; margin-bottom: 1.6rem; }
 
 /* Readout stile monitor vitale: pannello navy, cifre mono teal, traccia ECG */
 .counter-chip {
@@ -823,6 +823,31 @@ body.cursor-hover .cursor-ring { width: 52px; height: 52px; border-color: var(--
 .footer-links a { color: rgba(240, 246, 250, 0.6); text-decoration: none; transition: color 0.2s; }
 .footer-links a:hover { color: var(--paper); }
 .footer-fine { text-align: center; font-size: 0.75rem; color: rgba(240, 246, 250, 0.35); }
+
+/* ── Persone: banda fiducia con foto reali ── */
+.persone-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: clamp(1rem, 2.5vw, 2rem);
+  max-width: 1200px; margin: 0 auto;
+}
+@media (max-width: 800px) { .persone-grid { grid-template-columns: 1fr; } }
+.persona { margin: 0; }
+.persona img {
+  width: 100%; aspect-ratio: 4/3; object-fit: cover;
+  border-radius: 16px; border: 1px solid var(--line); display: block;
+}
+.persona figcaption {
+  font-family: var(--font-mono); font-size: 0.72rem;
+  text-transform: uppercase; letter-spacing: 0.08em;
+  color: var(--ink-soft); margin-top: 0.7rem; text-align: center;
+}
+
+/* Foto nel contatto (medico con smartphone) */
+.contatto-photo {
+  margin-top: 2rem; width: min(100%, 28rem);
+  aspect-ratio: 3/2; object-fit: cover;
+  border-radius: 16px; border: 1px solid var(--night-2); display: block;
+}
 
 /* ═══════════ Reveal states (pre-animazione) ═══════════ */
 [data-reveal] { opacity: 0; transform: translateY(28px); }
